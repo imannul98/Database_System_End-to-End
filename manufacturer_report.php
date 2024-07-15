@@ -1,17 +1,19 @@
 <?php
 include 'config.php';
+include 'navbar.php';
+include 'helper.php';
 check_login();
 
 // Query to fetch manufacturer report data
 $sql = "
-    SELECT m.manufacturer_name,
-           COUNT(p.product_id) AS total_products,
-           AVG(p.retail_price) AS avg_price,
-           MIN(p.retail_price) AS min_price,
-           MAX(p.retail_price) AS max_price
+    SELECT m.ManufacturerName,
+           COUNT(p.PID) AS total_products,
+           AVG(p.RetailPrice) AS avg_price,
+           MIN(p.RetailPrice) AS min_price,
+           MAX(p.RetailPrice) AS max_price
     FROM manufacturer m
-    JOIN product p ON m.manufacturer_id = p.manufacturer_id
-    GROUP BY m.manufacturer_name
+    JOIN product p ON m.ManufacturerName = p.ManufacturerName
+    GROUP BY m.ManufacturerName
     ORDER BY avg_price DESC
     LIMIT 100";
 
@@ -26,6 +28,7 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
+    <?php render_navbar(); ?>
     <h2>Manufacturer’s Product Report</h2>
     <table>
         <thead>
@@ -40,7 +43,7 @@ $result = $conn->query($sql);
         <tbody>
             <?php while ($row = $result->fetch_assoc()): ?>
             <tr>
-                <td><?php echo $row['manufacturer_name']; ?></td>
+                <td><?php echo $row['ManufacturerName']; ?></td>
                 <td><?php echo $row['total_products']; ?></td>
                 <td><?php echo $row['avg_price']; ?></td>
                 <td><?php echo $row['min_price']; ?></td>

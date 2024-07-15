@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "nicoledb";
 $password = "gatech234";
-$dbname = "BuzzBuy";
+$dbname = "cs6400_su24_team038";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -12,11 +12,5 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Function to check if user is logged in
-function check_login() {
-    if (!isset($_SESSION['loggedin'])) {
-        header("Location: login.php");
-        exit();
-    }
-}
+
 ?>
