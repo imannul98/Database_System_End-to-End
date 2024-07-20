@@ -51,6 +51,7 @@ $audit_logs = $conn->query("
     SELECT ar.TimeStamp, ar.EmployeeID, ar.ReportName, u.FirstName, u.LastName
     FROM auditreport ar
     JOIN user u ON ar.EmployeeID = u.EmployeeID
+	WHERE YEAR(ar.TimeStamp) BETWEEN 2017 AND 2019
     ORDER BY ar.TimeStamp DESC, ar.EmployeeID ASC
     LIMIT 100
 ")->fetch_all(MYSQLI_ASSOC);
@@ -66,7 +67,6 @@ $conn->close();
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-<?php render_main_menu_button(); ?>
 <h3>Available Reports</h3>
     <ul>
         <?php foreach ($accessible_reports as $report_name => $report_file): ?>
