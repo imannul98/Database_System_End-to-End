@@ -51,7 +51,7 @@ $audit_logs = $conn->query("
     SELECT ar.TimeStamp, ar.EmployeeID, ar.ReportName, u.FirstName, u.LastName
     FROM auditreport ar
     JOIN user u ON ar.EmployeeID = u.EmployeeID
-	WHERE YEAR(ar.TimeStamp) BETWEEN 2017 AND 2019
+	--WHERE YEAR(ar.TimeStamp) BETWEEN 2017 AND 2019
     ORDER BY ar.TimeStamp DESC, ar.EmployeeID ASC
     LIMIT 100
 ")->fetch_all(MYSQLI_ASSOC);
