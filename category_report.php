@@ -1,10 +1,13 @@
 <?php
 include 'config.php';
-include 'navbar.php';
 include 'helper.php';
 check_login();
 
-check_login();
+// Get the employee ID from the session
+$employee_id = $_SESSION['employee_id'];
+
+// Fetch the accessible reports
+$accessible_reports = get_user_reports($employee_id);
 
 // Query to fetch category report data
 $sql = "
@@ -29,7 +32,13 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-    <?php render_navbar(); ?>
+<h3>Available Reports</h3>
+    <ul>
+        <?php foreach ($accessible_reports as $report_name => $report_file): ?>
+            <li><a href="<?php echo $report_file; ?>"><?php echo $report_name; ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+	<?php render_logout_button(); ?>
     <h2>Category Report</h2>
     <table>
         <thead>
@@ -53,3 +62,7 @@ $result = $conn->query($sql);
     </table>
 </body>
 </html>
+<?php
+// Log the report view
+log_report_view($employee_id, "Category Report");
+?>

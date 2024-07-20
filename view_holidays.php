@@ -77,14 +77,10 @@ function render_logout_button() {
 function log_report_view($employee_id, $report_name) {
     global $conn;
 
-    $stmt = $conn->prepare("INSERT INTO auditreport (TimeStamp, EmployeeID, ReportName) VALUES (CURRENT_TIMESTAMP, ?, ?)");
-    if (!$stmt) {
-        die("Prepare failed: " . $conn->error);
-    }
-    $stmt->bind_param("is", $employee_id, $report_name);
-    if (!$stmt->execute()) {
-        die("Execute failed: " . $stmt->error);
-    }
+    $timestamp = date('Y-m-d H:i:s');
+    $stmt = $conn->prepare("INSERT INTO audit_log (employee_id, report_name, timestamp) VALUES (?, ?, ?)");
+    $stmt->bind_param("iss", $employee_id, $report_name, $timestamp);
+    $stmt->execute();
     $stmt->close();
 }
 ?>

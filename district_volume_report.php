@@ -1,8 +1,36 @@
 <?php
 include 'config.php';
-include 'navbar.php';
 include 'helper.php';
 check_login();
+
+// Get the employee ID from the session
+$employee_id = $_SESSION['employee_id'];
+
+// Fetch the accessible reports
+$accessible_reports = get_user_reports($employee_id);
+
+// Fetch the number of districts the user has access to
+$district_access_sql = "
+    SELECT COUNT(DISTINCT DistrictNumber) AS user_district_count
+    FROM user_district
+    WHERE EmployeeID = ?";
+$district_stmt = $conn->prepare($district_access_sql);
+$district_stmt->bind_param("i", $employee_id);
+$district_stmt->execute();
+$district_result = $district_stmt->get_result();
+$user_district_count = $district_result->fetch_assoc()['user_district_count'];
+$district_stmt->close();
+
+// Fetch the total number of districts
+$total_district_sql = "SELECT COUNT(DISTINCT DistrictNumber) AS total_district_count FROM district";
+$total_district_result = $conn->query($total_district_sql);
+$total_district_count = $total_district_result->fetch_assoc()['total_district_count'];
+
+// Check if the user has access to all districts
+if ($user_district_count < $total_district_count) {
+    echo "You do not have access to this report.";
+    exit();
+}
 
 // Fetch unique years and months from the sell table
 $years_result = $conn->query("SELECT DISTINCT YEAR(Date) AS year FROM sell ORDER BY year");
@@ -63,7 +91,13 @@ if (!$result) {
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-    <?php render_navbar(); ?>
+<h3>Available Reports</h3>
+    <ul>
+        <?php foreach ($accessible_reports as $report_name => $report_file): ?>
+            <li><a href="<?php echo $report_file; ?>"><?php echo $report_name; ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+	<?php render_logout_button(); ?>
     <h2>District with Highest Volume for Each Category</h2>
     <form method="get">
         <label for="year">Year:</label>
@@ -106,3 +140,7 @@ if (!$result) {
     </table>
 </body>
 </html>
+<?php
+// Log the report view
+log_report_view($employee_id, 'District with Highest Volume for each Category');
+?>

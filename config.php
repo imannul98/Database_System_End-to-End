@@ -12,5 +12,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Make the connection global
+$GLOBALS['conn'] = $conn;
 
 ?>
+

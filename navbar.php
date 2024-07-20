@@ -1,5 +1,19 @@
 <?php
-function render_navbar() {
+function render_navbar($conn) {
+    // Get the employee ID from the session
+    $employee_id = $_SESSION['employee_id'];
+
+    // Fetch the reports the user has access to
+    $reports_sql = "
+        SELECT r.ReportName, r.ReportFile
+        FROM reports r
+        JOIN user_reports ur ON r.ReportID = ur.ReportID
+        WHERE ur.UserID = ?";
+    $reports_stmt = $conn->prepare($reports_sql);
+    $reports_stmt->bind_param("i", $employee_id);
+    $reports_stmt->execute();
+    $reports_result = $reports_stmt->get_result();
+    
     echo '
     <div class="navbar">
         <a href="main_menu.php">Home</a>
@@ -7,17 +21,18 @@ function render_navbar() {
             <button class="dropbtn">Reports 
                 <i class="fa fa-caret-down"></i>
             </button>
-            <div class="dropdown-content">
-                <a href="manufacturer_report.php">Manufacturer’s Product Report</a><br>
-                <a href="category_report.php">Category Report</a><br>
-                <a href="gps_revenue_report.php">Actual vs Predicted Revenue for GPS Units</a><br>
-                <a href="ac_groundhog_report.php">Air Conditioners on Groundhog Day</a><br>
-                <a href="store_revenue_report.php">Store Revenue by Year by State</a><br>
-                <a href="district_volume_report.php">District with Highest Volume for Each Category</a><br>
-                <a href="revenue_population_report.php">Revenue by Population</a><br>
+            <div class="dropdown-content">';
+    
+    while ($report = $reports_result->fetch_assoc()) {
+        echo '<a href="' . htmlspecialchars($report['ReportFile']) . '">' . htmlspecialchars($report['ReportName']) . '</a><br>';
+    }
+
+    echo '
             </div>
         </div> 
         <a href="logout.php">Logout</a>
     </div>';
+
+    $reports_stmt->close();
 }
 ?>

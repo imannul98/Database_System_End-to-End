@@ -11,9 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     // Prepare and bind
-    $stmt = $conn->prepare("SELECT * FROM user WHERE EmployeeID = ? AND Password = ?");
+    $stmt = $conn->prepare("SELECT * FROM user WHERE EmployeeID = ?");
     if ($stmt) {
-        $stmt->bind_param("is", $employee_id, $password); // "i" for integer, "s" for string
+        $stmt->bind_param("i", $employee_id); // "i" for integer
 
         // Execute the statement
         $stmt->execute();
@@ -22,13 +22,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            // Valid login credentials
-            session_start();
-            $_SESSION['loggedin'] = true;
-            $_SESSION['employee_id'] = $employee_id;
+            // Fetch the user data
+            $user = $result->fetch_assoc();
 
-            header("Location: main_menu.php");
-            exit();
+            // Construct the expected password
+            $expected_password = substr($user['Last4SSN'], -4) . '-' . $user['LastName'];
+
+            if ($password === $expected_password) {
+                // Valid login credentials
+                session_start();
+                $_SESSION['loggedin'] = true;
+                $_SESSION['employee_id'] = $employee_id;
+
+                header("Location: main_menu.php");
+                exit();
+            } else {
+                // Invalid login credentials
+                $login_error = "Invalid login credentials. Please try again.";
+            }
         } else {
             // Invalid login credentials
             $login_error = "Invalid login credentials. Please try again.";
