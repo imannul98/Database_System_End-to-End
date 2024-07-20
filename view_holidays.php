@@ -38,19 +38,35 @@ if ($district_count_result && $user_district_count_result) {
 
 // Fetch all holidays from the database
 $holidays = $conn->query("SELECT * FROM holiday ORDER BY Date ASC")->fetch_all(MYSQLI_ASSOC);
+$holiday_dates = array_column($holidays, 'Date');
 
 // Handle adding a new holiday
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $access_all_districts) {
     $holiday_date = $_POST['holiday_date'];
     $holiday_name = $_POST['holiday_name'];
 
-    $stmt = $conn->prepare("INSERT INTO holiday (Date, HolidayName) VALUES (?, ?)");
+    // Check if the holiday already exists
+    $stmt = $conn->prepare("SELECT * FROM holiday WHERE Date = ?");
     if ($stmt) {
-        $stmt->bind_param("ss", $holiday_date, $holiday_name);
+        $stmt->bind_param("s", $holiday_date);
         $stmt->execute();
-        $stmt->close();
-        header("Location: view_holidays.php");
-        exit();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            echo "<p style='color: red;'>Holiday already exists for the selected date.</p>";
+        } else {
+            $stmt->close();
+            $stmt = $conn->prepare("INSERT INTO holiday (Date, HolidayName) VALUES (?, ?)");
+            if ($stmt) {
+                $stmt->bind_param("ss", $holiday_date, $holiday_name);
+                $stmt->execute();
+                $stmt->close();
+                header("Location: view_holidays.php");
+                exit();
+            } else {
+                echo "Error preparing statement: " . $conn->error;
+                exit();
+            }
+        }
     } else {
         echo "Error preparing statement: " . $conn->error;
         exit();
@@ -66,6 +82,19 @@ $conn->close();
     <meta charset="UTF-8">
     <title>View Holidays</title>
     <link rel="stylesheet" href="main.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var holidayDates = <?php echo json_encode($holiday_dates); ?>;
+            var dateInput = document.getElementById('holiday_date');
+            dateInput.addEventListener('input', function () {
+                var selectedDate = dateInput.value;
+                if (holidayDates.includes(selectedDate)) {
+                    alert('Holiday already exists for the selected date.');
+                    dateInput.value = '';
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <h3>Available Reports</h3>
@@ -74,7 +103,7 @@ $conn->close();
             <li><a href="<?php echo $report_file; ?>"><?php echo $report_name; ?></a></li>
         <?php endforeach; ?>
     </ul>
-	<h1>Existing Holidays</h1>
+    <h1>Existing Holidays</h1>
     <table>
         <thead>
             <tr>
