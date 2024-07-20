@@ -46,7 +46,7 @@ function get_user_reports($employee_id) {
     $audit_flag_stmt->close();
 
     $reports = [
-        "View Holidays" => "view_holidays.php",
+        "View Holidays" => "view_holidays.php", 
         "Manufacturer's Product Report" => "manufacturer_report.php",
         "Category Report" => "category_report.php",
         "Actual versus Predicted Revenue for GPS units" => "gps_revenue_report.php",
@@ -64,7 +64,7 @@ function get_user_reports($employee_id) {
 
     // Show audit report if the user has the audit view flag
     if ($audit_view_flag) {
-        $reports["Audit Report"] = "audit_report.php";
+        $reports["Audit Report"] = "view_audit_log.php";
     }
 
     return $reports;

@@ -49,7 +49,7 @@ $sql = "
     JOIN product p ON se.PID = p.PID
     LEFT JOIN discount d ON se.PID = d.PID AND se.Date = d.Date
     GROUP BY city_size, year
-    ORDER BY city_size ASC, year ASC";
+    ORDER BY FIELD(city_size, 'Small', 'Medium', 'Large', 'Extra Large'), year ASC";
 
 $result = $conn->query($sql);
 
