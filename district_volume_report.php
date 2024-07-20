@@ -91,7 +91,6 @@ if (!$result) {
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-<?php render_main_menu_button(); ?>
 <h3>Available Reports</h3>
     <ul>
         <?php foreach ($accessible_reports as $report_name => $report_file): ?>
@@ -127,6 +126,7 @@ if (!$result) {
                 <th>Category Name</th>
                 <th>District Number</th>
                 <th>Total Units Sold</th>
+                <th>Details</th>
             </tr>
         </thead>
         <tbody>
@@ -135,6 +135,7 @@ if (!$result) {
                 <td><?php echo htmlspecialchars($row['CategoryName']); ?></td>
                 <td><?php echo htmlspecialchars($row['DistrictNumber']); ?></td>
                 <td><?php echo htmlspecialchars($row['total_units_sold']); ?></td>
+                <td><a href="district_volume_details.php?year=<?php echo urlencode($year); ?>&month=<?php echo urlencode($month); ?>&category=<?php echo urlencode($row['CategoryName']); ?>&district=<?php echo urlencode($row['DistrictNumber']); ?>">View Details</a></td>
             </tr>
             <?php endwhile; ?>
         </tbody>

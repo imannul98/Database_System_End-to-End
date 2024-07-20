@@ -46,7 +46,7 @@ function get_user_reports($employee_id) {
     $audit_flag_stmt->close();
 
     $reports = [
-        "View Holidays" => "view_holidays.php", 
+        "View Holidays" => "view_holidays.php",
         "Manufacturer's Product Report" => "manufacturer_report.php",
         "Category Report" => "category_report.php",
         "Actual versus Predicted Revenue for GPS units" => "gps_revenue_report.php",
@@ -72,11 +72,6 @@ function get_user_reports($employee_id) {
 
 function render_logout_button() {
     echo '<a href="logout.php" style="color: red; font-weight: bold;">Logout</a>';
-}
-
-
-function render_main_menu_button() {
-    echo '<a href="main_menu.php" style="color: black; font-weight: bold;">Main Menu</a>';
 }
 
 function log_report_view($employee_id, $report_name) {
