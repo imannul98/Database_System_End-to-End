@@ -74,6 +74,10 @@ function render_logout_button() {
     echo '<a href="logout.php" style="color: red; font-weight: bold;">Logout</a>';
 }
 
+function render_main_menu_button() {
+    echo '<a href="main_menu.php" style="color: black; font-weight: bold;">Main Menu</a>';
+}
+
 function log_report_view($employee_id, $report_name) {
     global $conn;
 
