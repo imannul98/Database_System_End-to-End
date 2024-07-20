@@ -11,18 +11,21 @@ $accessible_reports = get_user_reports($employee_id);
 
 // Query to fetch manufacturer report data
 $sql = "
-    SELECT m.ManufacturerName,
-           COUNT(p.PID) AS total_products,
+    SELECT p.ManufacturerName,
+           COUNT(DISTINCT p.PID) AS total_products,
            AVG(p.RetailPrice) AS avg_price,
            MIN(p.RetailPrice) AS min_price,
            MAX(p.RetailPrice) AS max_price
-    FROM manufacturer m
-    JOIN product p ON m.ManufacturerName = p.ManufacturerName
-    GROUP BY m.ManufacturerName
+    FROM product p
+    GROUP BY p.ManufacturerName
     ORDER BY avg_price DESC
     LIMIT 100";
 
 $result = $conn->query($sql);
+
+if (!$result) {
+    die("Query failed: " . $conn->error);
+}
 ?>
 
 <!DOCTYPE html>
@@ -39,8 +42,8 @@ $result = $conn->query($sql);
             <li><a href="<?php echo $report_file; ?>"><?php echo $report_name; ?></a></li>
         <?php endforeach; ?>
     </ul>
-	<?php render_logout_button(); ?>
-	<h2>Manufacturer’s Product Report</h2>
+    <?php render_logout_button(); ?>
+    <h2>Manufacturer’s Product Report</h2>
     <table>
         <thead>
             <tr>
@@ -49,22 +52,25 @@ $result = $conn->query($sql);
                 <th>Average Price</th>
                 <th>Minimum Price</th>
                 <th>Maximum Price</th>
+                <th>Details</th>
             </tr>
         </thead>
         <tbody>
             <?php while ($row = $result->fetch_assoc()): ?>
             <tr>
-                <td><?php echo $row['ManufacturerName']; ?></td>
-                <td><?php echo $row['total_products']; ?></td>
-                <td><?php echo $row['avg_price']; ?></td>
-                <td><?php echo $row['min_price']; ?></td>
-                <td><?php echo $row['max_price']; ?></td>
+                <td><?php echo htmlspecialchars($row['ManufacturerName']); ?></td>
+                <td><?php echo htmlspecialchars($row['total_products']); ?></td>
+                <td><?php echo htmlspecialchars($row['avg_price']); ?></td>
+                <td><?php echo htmlspecialchars($row['min_price']); ?></td>
+                <td><?php echo htmlspecialchars($row['max_price']); ?></td>
+                <td><a href="manufacturer_detail.php?manufacturer=<?php echo urlencode($row['ManufacturerName']); ?>">View Details</a></td>
             </tr>
             <?php endwhile; ?>
         </tbody>
     </table>
 </body>
 </html>
+
 <?php
 // Log the report view
 log_report_view($employee_id, "Manufacturer's Product Report");
