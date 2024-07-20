@@ -26,6 +26,8 @@ $manufacturer_count = $conn->query("SELECT COUNT(*) AS count FROM manufacturer")
 $product_count = $conn->query("SELECT COUNT(*) AS count FROM product")->fetch_assoc()['count'];
 $category_count = $conn->query("SELECT COUNT(*) AS count FROM category")->fetch_assoc()['count'];
 $holiday_count = $conn->query("SELECT COUNT(*) AS count FROM holiday")->fetch_assoc()['count'];
+$employeeID = $_SESSION['employee_id'];
+$username = $conn->query("SELECT CONCAT(FirstName,' ', LastName) AS uname FROM user WHERE EmployeeID ='$employeeID' ")->fetch_assoc()['uname'];
 ?>
 
 <!DOCTYPE html>
@@ -37,7 +39,7 @@ $holiday_count = $conn->query("SELECT COUNT(*) AS count FROM holiday")->fetch_as
 </head>
 <body>
     <?php render_navbar(); ?>
-    <h1>Welcome, Employee ID: <?php echo htmlspecialchars($_SESSION['employee_id']); ?>!</h1>
+    <h1>Welcome,  <?php echo htmlspecialchars($username); ?>!</h1>
     <p>Stores: <?php echo $store_count; ?></p>
     <p>Cities: <?php echo $city_count; ?></p>
     <p>Districts: <?php echo $district_count; ?></p>
