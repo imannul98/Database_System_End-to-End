@@ -74,6 +74,7 @@ $conn->close();
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
+<?php render_main_menu_button(); ?>
 <h3>Available Reports</h3>
     <ul>
         <?php foreach ($accessible_reports as $report_name => $report_file): ?>

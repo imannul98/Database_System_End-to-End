@@ -44,6 +44,7 @@ $holiday_dates = array_column($holidays, 'Date');
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $access_all_districts) {
     $holiday_date = $_POST['holiday_date'];
     $holiday_name = $_POST['holiday_name'];
+    $employee_id = $_SESSION['employee_id'];
 
     // Check if the holiday already exists
     $stmt = $conn->prepare("SELECT * FROM holiday WHERE Date = ?");
@@ -55,9 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $access_all_districts) {
             echo "<p style='color: red;'>Holiday already exists for the selected date.</p>";
         } else {
             $stmt->close();
-            $stmt = $conn->prepare("INSERT INTO holiday (Date, HolidayName) VALUES (?, ?)");
+            $stmt = $conn->prepare("INSERT INTO holiday (Date, HolidayName, EmployeeID) VALUES (?, ?, ?)");
             if ($stmt) {
-                $stmt->bind_param("ss", $holiday_date, $holiday_name);
+                $stmt->bind_param("sss", $holiday_date, $holiday_name, $employee_id);
                 $stmt->execute();
                 $stmt->close();
                 header("Location: view_holidays.php");
@@ -97,12 +98,14 @@ $conn->close();
     </script>
 </head>
 <body>
+<?php render_main_menu_button(); ?>
     <h3>Available Reports</h3>
     <ul>
         <?php foreach ($accessible_reports as $report_name => $report_file): ?>
             <li><a href="<?php echo $report_file; ?>"><?php echo $report_name; ?></a></li>
         <?php endforeach; ?>
     </ul>
+    <?php render_logout_button(); ?>
     <h1>Existing Holidays</h1>
     <table>
         <thead>
