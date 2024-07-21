@@ -46,6 +46,26 @@ if (!$audit_view_flag) {
     exit();
 }
 
+// Function to check if a user has access to all districts
+function has_access_all_districts($employee_id, $conn) {
+    $district_access_sql = "
+        SELECT COUNT(DISTINCT DistrictNumber) AS user_district_count
+        FROM user_district
+        WHERE EmployeeID = ?";
+    $district_stmt = $conn->prepare($district_access_sql);
+    $district_stmt->bind_param("i", $employee_id);
+    $district_stmt->execute();
+    $district_result = $district_stmt->get_result();
+    $user_district_count = $district_result->fetch_assoc()['user_district_count'];
+    $district_stmt->close();
+
+    $total_district_sql = "SELECT COUNT(DISTINCT DistrictNumber) AS total_district_count FROM district";
+    $total_district_result = $conn->query($total_district_sql);
+    $total_district_count = $total_district_result->fetch_assoc()['total_district_count'];
+
+    return ($user_district_count == $total_district_count);
+}
+
 // Fetch the most recent 100 audit log records
 $audit_logs = $conn->query("
     SELECT ar.TimeStamp, ar.EmployeeID, ar.ReportName, u.FirstName, u.LastName
@@ -55,7 +75,6 @@ $audit_logs = $conn->query("
     LIMIT 100
 ")->fetch_all(MYSQLI_ASSOC);
 
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -66,7 +85,6 @@ $conn->close();
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-<?php render_main_menu_button(); ?>
 <h3>Available Reports</h3>
     <ul>
         <?php foreach ($accessible_reports as $report_name => $report_file): ?>
@@ -86,7 +104,11 @@ $conn->close();
         </thead>
         <tbody>
             <?php foreach ($audit_logs as $log): ?>
-                <tr>
+                <?php
+                $log_employee_id = $log['EmployeeID'];
+                $access_all_districts = has_access_all_districts($log_employee_id, $conn);
+                ?>
+                <tr<?php echo ($access_all_districts) ? ' style="background-color: yellow;"' : ''; ?>>
                     <td><?php echo htmlspecialchars($log['TimeStamp']); ?></td>
                     <td><?php echo htmlspecialchars($log['EmployeeID']); ?></td>
                     <td><?php echo htmlspecialchars($log['LastName'] . ', ' . $log['FirstName']); ?></td>
@@ -97,3 +119,6 @@ $conn->close();
     </table>
 </body>
 </html>
+<?php
+$conn->close();
+?>
